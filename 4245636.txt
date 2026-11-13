@@ -1,0 +1,132 @@
+import random
+
+class Engine:
+    def __init__(self, power, stability):
+        self.power = power
+        self.stability = stability
+
+    def is_working(self):
+        print("Проверка работоспособности двигателя")
+        return random.random() < self.stability
+
+    
+    def get_base_thrust(self): 
+        print("Получения базовой тяги")
+        return self.power * 0.1
+
+class Driver:
+    def __init__(self, name, skill):
+        self.name = name
+        if skill < 0.7:
+            self.skill = 0.7
+            print(f'навык {name} низкий')
+        elif skill > 1.3:
+            self.skill = 1.3
+            print(f'навык {name} высокий')
+        else:
+            self.skill = skill
+
+class Car:
+    def __init__(self, name, engine):
+
+        self.name = name
+        self.engine = engine
+        self.driver = None
+
+    def set_driver(self, driver):
+        self.driver = driver
+        print(f"{driver.name} садится за руль {self.name}")
+
+    def step(self):
+        if self.driver is None:
+            print("вадиллы нет")
+            return 0
+        if not self.engine.is_working():
+            print(f"{self.name}: мотор заглох")
+            return 0
+
+        distance = (self.engine.get_base_thrust() * self.driver.skill * random.uniform(0.8,1.2))
+        return distance
+
+
+class Race:
+    def __init__(self, track_len=500):
+        self.track_len = track_len
+        self.active = {}
+        self.finished = {}     
+    
+    def add_car(self, car):
+        if car.driver is None:
+            print(f" {car.name} не допущена (нет вадиллы)")
+            return
+        self.active[car] = 0
+    
+    def run(self):
+        turn = 0
+        print(f"Гонка, Дистанция: {self.track_len} м\n")
+        
+        while self.active:
+            turn += 1
+            print(f"Ход {turn}")
+            
+            finished_now = []
+            
+            for car, distance in self.active.items():
+                move = car.step()
+                distance += move
+                self.active[car] = distance
+                
+                print(f"  {car.name}: +{move:.1f} м = {distance:.1f} м")
+                
+                if distance >= self.track_len:
+                    finished_now.append(car)
+                    print(f"  {car.name} финишировала")
+            
+            for car in finished_now:
+                del self.active[car]
+                key = f"{car.name} ({car.driver.name})"
+                self.finished[key] = turn
+            
+            print()
+        
+        self.show_results()
+    
+    def show_results(self):
+        print(" ====Итоги==== ")
+        
+        results_list = []
+        for key, turns in self.finished.items():
+            results_list.append((turns, key))
+        
+        results_list.sort()
+        
+        place = 1
+        for turns, key in results_list:
+            print(f"{place}. {key} — {turns} ходов")
+            place += 1
+
+
+engine1 = Engine(200, 0.9)
+engine2 = Engine(250, 0.85)
+engine3 = Engine(180, 0.95)
+
+
+car1 = Car("Opel Astra", engine1)
+car2 = Car("Nissan", engine2)
+car3 = Car("Lada Vesta", engine3)
+
+
+driver1 = Driver("Фита", 1.2)
+driver2 = Driver("Андрей", 0.8)
+
+
+car1.set_driver(driver1)
+car2.set_driver(driver2)
+
+
+race = Race(500)
+race.add_car(car1)
+race.add_car(car2)
+race.add_car(car3)
+race.run()
+        
