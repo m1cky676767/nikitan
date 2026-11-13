@@ -1,0 +1,215 @@
+class Animal:
+    def __init__(self, name):
+        self.__name = name
+        self.__hungry = 50
+        self.__mood = 50
+        self.__is_alive = True
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def hungry(self):
+        return self.__hungry
+
+    @hungry.setter
+    def hungry(self, value):
+        self.__hungry = max(0, min(100, value))
+        if self.__hungry >= 100:
+            self.__is_alive = False
+
+    @property
+    def mood(self):
+        return self.__mood
+
+    @mood.setter
+    def mood(self, value):
+        self.__mood = max(0, min(100, value))
+        if self.__mood <= 0:
+            self.__is_alive = False
+
+    @property
+    def is_alive(self):
+        return self.__is_alive
+
+    def speak(self):
+        print(f"{self.__name}: издаёт звук")
+
+    def feed(self):
+        if not self.__is_alive:
+            print(f"{self.__name} уже мёртв")
+            return
+        self.hungry -= 25
+        print(f"{self.__name} покормлено. Голод: {self.hungry}")
+
+    def play(self):
+        if not self.__is_alive:
+            print(f"{self.__name} уже мёртв")
+            return
+        self.mood += 25
+        print(f"Поиграли с {self.__name}. Настроение: {self.mood}")
+
+    def skip_hour(self):
+        if not self.__is_alive:
+            print(f"{self.__name} уже мёртв")
+            return
+        self.mood -= 15
+        self.hungry += 10
+        print(f"[Час прошёл] {self.__name} — голод: {self.hungry}, настроение: {self.mood}")
+
+    def __str__(self):
+        status = "Жив" if self.__is_alive else "Мёртв"
+        return f"[{status}] {self.__name} | Голод: {self.__hungry} | Настроение: {self.__mood}"
+
+
+class Tiger(Animal):
+    def __init__(self, name="Тигр"):
+        super().__init__(name)
+
+    def speak(self):
+        print(f"{self.name}: рычит")
+
+    def feed(self):
+        super().feed()
+        print("Тигр пожрал мясо")
+
+    def play(self):
+        super().play()
+        print("Тигр поиграл")
+
+    def skip_hour(self):
+        super().skip_hour()
+        self.hungry += 10
+
+
+class Elephant(Animal):
+    def __init__(self, name="Слон"):
+        super().__init__(name)
+
+    def speak(self):
+        print(f"{self.name}: дует в трубу")
+
+    def feed(self):
+        super().feed()
+        print("Слон жует траву")
+
+    def play(self):
+        super().play()
+        print("Слон поиграл")
+
+    def skip_hour(self):
+        super().skip_hour()
+        self.hungry += 5
+
+
+class Pig(Animal):
+    def __init__(self, name="Свинья"):
+        super().__init__(name)
+
+    def speak(self):
+        print(f"{self.name}: хрюкает")
+
+    def feed(self):
+        super().feed()
+        print("Свинья пожрала")
+
+    def play(self):
+        super().play()
+        print("Свинья поиграла")
+
+    def skip_hour(self):
+        super().skip_hour()
+        self.hungry += 15
+
+class Zoo:
+    def __init__(self):
+        self.animals = []
+    def add_animal(self, animal):
+        self.animals.append(animal)
+        print(f"Добавлено: {animal.name}")
+
+    def show_all(self):
+        print(f"--- все животные ---")
+        for a in self.animals:
+            print(a)
+                 
+
+    def skip_hours(self, n):
+        print(f"Пропускаем {n} часов")
+        for animal in self.animals:
+            for _ in range(n):
+                animal.skip_hour()
+            print(animal)
+            
+    def call_all(self):
+        print(f"Зовем всех животных")
+        for animal in self.animals:
+            animal.speak()
+
+    def interact(self):
+        alive = [a for a in self.animals if a.is_alive]
+        if not alive:
+            print("Нет живых животных!")
+            return
+
+        print("Живые животные:")
+        for i, a in enumerate(alive, 1):
+            print(f"{i}. {a}")
+
+            choice = int(input("Введите номер животного: ")) - 1
+            if 0 <= choice < len(alive):  
+                target = alive[choice]
+                print("1 - покормить, 2 - поиграть")
+                action = int(input("Действие: "))
+            
+                if action == 1:
+                    target.feed()
+                elif action == 2:
+                    target.play()
+                else:
+                    print("Неправильный выбор")
+            else:
+                print("Неверный номер")
+    def clean(self):
+        before = len(self.animals)
+        self.animals = [a for a in  self.animals if a.is_alive]
+        removed = before - len(self.animals)
+        print(f"Убрано {removed} животных")
+
+def menu():
+    zoo = Zoo()
+    zoo.add_animal(Tiger("Леопольд"))
+    zoo.add_animal(Elephant("Лексус"))
+    zoo.add_animal(Pig("Джордж"))
+
+    while True:
+        print('''
+        1. Показать всех
+        2. Пропустить n часов
+        3. Позвать всех
+        4. Покормить\Поиграть
+        5. Почистить зоопарк
+        6. Выход
+        ''')
+        choice = int(input("Выбор:"))
+
+        match (choice):
+            case 1:
+                zoo.show_all()
+            case 2:
+                n = int(input("Сколько часов"))
+                zoo.skip_hours(n)
+            case 3:
+                zoo.call_all()
+            case 4:
+                zoo.interact()
+            case 5:
+                zoo.clean()
+            case 6:
+                break
+
+
+            
+menu()
+    
